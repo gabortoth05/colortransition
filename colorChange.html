@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<style>
+	#box{
+		width: 600x;
+		height: 100vh;
+	}
+	
+	.form{
+		width: 400px;
+		background-color: #fff;
+		padding: 15px;
+		box-shadow: 2px 2px 5px #333;
+	}
+	
+
+</style>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+<body >
+
+<div class="container-fluid" >
+	
+
+		
+</div>
+
+<div class="container-fluid" id="box">
+
+	<div class="col-sm-12" >
+	  
+	  
+	   <div class="btn-group">
+		  <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo"><i class="fa fa-cogs"></i></button>
+		  <button type="button" class="btn btn-primary" onclick="onPressAction()" ><i class="fa fa-play" aria-hidden="true"></i></button>
+		</div> 
+
+		<div id="demo" class="collapse show">
+			<div class="form">
+				<form action="/action_page.php">
+					<label>Időtartam</label>
+					<div class="row">
+						<div class="col">
+						  <input type="time" class="form-control" placeholder="Enter email" name="email">
+						</div>
+						<div class="col">
+						  <input type="time" class="form-control" placeholder="Enter password" name="pswd">
+						</div>
+					</div>
+					<label>Színek</label>
+					<div class="form-group">
+					 
+					  <input type="color" id="fromColor" class="form-control" value="#ff0000">
+					  <input type="color" id="toColor" class="form-control" value="#0000ff">
+					</div>
+					
+					
+				</form>
+			</div>
+			
+		</div>
+	</div>
+
+
+</div>
+
+
+<script>
+// linear interpolation between two values a and b
+    // u controls amount of a/b and is in range [0.0,1.0]
+    lerp = function(a,b,u) {
+        return (1-u) * a + u * b;
+    };
+    
+    fade = function(element, property, start, end, duration) {
+      var interval = 10;
+      var steps = duration/interval;
+      var step_u = 1.0/steps;
+      var u = 0.0;
+      var theInterval = setInterval(function(){
+	  
+        if (u >= 1.0){ 
+			clearInterval(theInterval) 
+		}
+		
+		
+        var r = parseInt(lerp(start.r, end.r, u));
+        var g = parseInt(lerp(start.g, end.g, u));
+        var b = parseInt(lerp(start.b, end.b, u));
+		
+        var colorname = 'rgb('+r+','+g+','+b+')';
+		
+		
+		
+        el.style.setProperty(property, colorname);
+        u += step_u;
+      }, interval);
+    };
+    
+    // in action
+    el = document.getElementById('box'); // your element
+    property = 'background-color';       // fading property
+    //startColor = {r:255, g:  0, b:  0};  // red
+    //endColor   = {r:  0, g:128, b:128};  // dark turquoise
+	
+    
+	
+	onPressAction = function(){
+	
+		var sStartColor = document.getElementById("fromColor").value;
+		var sEndColor = document.getElementById("toColor").value;
+		
+		var aStartColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sStartColor);
+		var aEndColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sEndColor);
+		
+		var oStartColor = 	{r:parseInt(aStartColor[1], 16), g:parseInt(aStartColor[2], 16), b:parseInt(aStartColor[3], 16)}; 
+		var oEndColor = 	{r:parseInt(aEndColor[1], 16), g:parseInt(aEndColor[2], 16), b:parseInt(aEndColor[3], 16)};
+		
+		console.log(oStartColor);
+	
+		fade(el,'background-color',oStartColor,oEndColor,5000);
+	}
+    
+    // fade back after 2 secs
+    /*setTimeout(function(){
+      fade(el,'background-color',endColor,startColor,5000);
+    },2000);*/
+</script>
+</body>
+</html>
