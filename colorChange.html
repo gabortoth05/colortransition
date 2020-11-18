@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Color transition example</title>
+  <title>Color Experiment</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -24,6 +24,22 @@
 		box-shadow: 2px 2px 5px #333;
 	}
 	
+	.play-button{
+		position: absolute;
+		top: 50%;
+		left: 50%;
+	}
+	
+	.play-button i{
+		font-size: 5rem !important;
+	}
+	
+	.counter{
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		font-size: 5rem !important;
+	}
 
 </style>
  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -43,8 +59,8 @@
 	  
 	  
 	   <div class="btn-group">
-		  <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo"><i class="fa fa-cogs"></i></button>
-		  <button type="button" class="btn btn-primary" onclick="onPressAction()" ><i class="fa fa-play" aria-hidden="true"></i></button>
+		  <button id="settingsButton" type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo"><i class="fa fa-cogs"></i></button>
+		 <!-- <button type="button" class="btn btn-primary" onclick="onPressAction()" ><i class="fa fa-play" aria-hidden="true"></i></button>-->
 		</div> 
 
 		<div id="demo" class="collapse show">
@@ -53,10 +69,10 @@
 					<label>Időtartam</label>
 					<div class="row">
 						<div class="col">
-						  <input type="time" class="form-control" placeholder="Enter email" name="email">
+						  <input id="fromTime" placeholder="hrs:mins" type="time" class="form-control" placeholder="Enter email" name="email">
 						</div>
 						<div class="col">
-						  <input type="time" class="form-control" placeholder="Enter password" name="pswd">
+						  <input id="toTime" type="time" class="form-control" placeholder="Enter password" name="pswd">
 						</div>
 					</div>
 					<label>Színek</label>
@@ -68,12 +84,22 @@
 					
 					
 				</form>
+				
+				<button type="button" class="btn btn-primary" onclick="onSendData()" >Mentés</button>
 			</div>
-			
 		</div>
+		
+		
+		
 	</div>
 
 
+			<h1 id="counter" class="counter">5</h1>
+		  <button id="playButton" type="button" class="btn btn-primary play-button" data-toggle="collapse" data-target="#demo" onclick="onShowTimer()" >
+			<i class="fa fa-play" aria-hidden="true"></i>
+		  </button>
+
+	
 </div>
 
 
@@ -101,8 +127,12 @@
         var b = parseInt(lerp(start.b, end.b, u));
 		
         var colorname = 'rgb('+r+','+g+','+b+')';
-		
-		
+
+		//Show button if the transition is over
+		if(u >1.0){
+			$("#playButton").fadeIn(1000);
+			$("#settingsButton").fadeIn(1000);
+		}
 		
         el.style.setProperty(property, colorname);
         u += step_u;
@@ -118,9 +148,10 @@
     
 	
 	onPressAction = function(){
-	
+		var d = document;
 		var sStartColor = document.getElementById("fromColor").value;
 		var sEndColor = document.getElementById("toColor").value;
+		var nDuration;
 		
 		var aStartColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sStartColor);
 		var aEndColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sEndColor);
@@ -129,9 +160,132 @@
 		var oEndColor = 	{r:parseInt(aEndColor[1], 16), g:parseInt(aEndColor[2], 16), b:parseInt(aEndColor[3], 16)};
 		
 		console.log(oStartColor);
+		
+		var nStartDate = Number(d.getElementById("fromTime").value.split(":")[0])+Number(d.getElementById("fromTime").value.split(":")[1]/60);
+		var nEndDate = Number(d.getElementById("toTime").value.split(":")[0]) + Number(d.getElementById("toTime").value.split(":")[1]/60);
+		
+		if(nStartDate < nEndDate){
+			duration =  nEndDate - nStartDate;
+		}
+		else{
+			duration = (24-nStartDate) + nEndDate;
+		}
+		
+		console.log("duration", duration);
 	
-		fade(el,'background-color',oStartColor,oEndColor,5000);
+		
+		
+		fade(el,'background-color',oStartColor,oEndColor,duration*60*60*1000);
+		$("#playButton").fadeOut(1000);
+		$("#settingsButton").fadeOut(1000);
+		
+	};
+	
+	///this can be a timer
+	onShowTimer = function(){
+	
+		$("#playButton").fadeOut(1000);
+		
+		var x = 5;
+		var intervalID = setInterval(function () {
+
+		   // Your logic here
+			document.getElementById("counter").textContent = x;
+
+			 console.log("test",document.getElementById("counter").textContent);
+
+		   if (--x === 0) {
+			   window.clearInterval(intervalID);
+				$("#counter").fadeOut(500);
+				
+					onInitFade()
+				
+				
+		   }
+		}, 1000);
+		
+	
+	},
+	
+	onSetTime = function(){
+		var d = document;
+
+		d.getElementById("fromTime").value = new Date().getHours().toString() + ":" + new Date().getMinutes().toString();
+		d.getElementById("fromTime").disabled = true
+		
+		d.getElementById("toTime").value = ((new Date().getHours())+1).toString() + ":" + new Date().getMinutes().toString();
+	
+		console.log(d.getElementById("toTime"));
+	};
+	
+	//https://www.apispreadsheets.com/upload
+	onSendData = function(){
+	
+		var d = document;
+	
+		var oData ={
+			starttime: d.getElementById("fromTime").value,
+			endtime: d.getElementById("toTime").value,
+			duration: "",
+			fromcolor: d.getElementById("fromColor").value,	
+			tocolor: d.getElementById("toColor").value
+		
+		}
+	
+		fetch("https://api.apispreadsheets.com/data/3689/", {
+			method: "POST",
+			body: JSON.stringify({"data": oData}),
+		}).then(res =>{
+			if (res.status === 201){
+				// SUCCESS
+			}
+			else{
+				// ERROR
+			}
+		})
+	
+	
+	};
+	
+	$(document).ready(function(){
+	  onSetTime();
+	  console.log("test");
+	});
+	
+	
+	onInitFade = function(element){
+		  var sEndColor = document.getElementById("fromColor").value;
+		  var aEndColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sEndColor);
+		  var oEndColor = 	{r:parseInt(aEndColor[1], 16), g:parseInt(aEndColor[2], 16), b:parseInt(aEndColor[3], 16)};
+	      var property = "background-color";
+		  var start = {r:255,g:255,b:255};
+		  var interval = 10;
+		  var steps = 1000/interval;
+		  var step_u = 1.0/steps;
+		  var u = 0.0;
+		  var theInterval = setInterval(function(){
+		  
+			if (u >= 1.0){ 
+				clearInterval(theInterval) 
+			}
+			
+			
+			var r = parseInt(lerp(start.r, oEndColor.r, u));
+			var g = parseInt(lerp(start.g, oEndColor.g, u));
+			var b = parseInt(lerp(start.b, oEndColor.b, u));
+			
+			var colorname = 'rgb('+r+','+g+','+b+')';
+
+			//Show button if the transition is over
+			if(u >1.0){
+				onPressAction();
+			}
+			
+			el.style.setProperty(property, colorname);
+			u += step_u;
+		  }, interval);
 	}
+	
     
     // fade back after 2 secs
     /*setTimeout(function(){
