@@ -68,11 +68,18 @@
 				<form action="/action_page.php">
 					<label>Időtartam</label>
 					<div class="row">
-						<div class="col">
+					<!--	<div class="col">
 						  <input id="fromTime" placeholder="hrs:mins" type="time" class="form-control" placeholder="Enter email" name="email">
 						</div>
 						<div class="col">
 						  <input id="toTime" type="time" class="form-control" placeholder="Enter password" name="pswd">
+						</div> -->
+						
+						<div class="col" >
+							<input id="hour" placeholder="óra" type="number" class="form-control" name="hours" />
+						</div>
+						<div class="col" >
+							<input id="minute" placeholder="perc" type="number" class="form-control" name="minutes" />
 						</div>
 					</div>
 					<label>Színek</label>
@@ -161,21 +168,29 @@
 		
 		console.log(oStartColor);
 		
-		var nStartDate = Number(d.getElementById("fromTime").value.split(":")[0])+Number(d.getElementById("fromTime").value.split(":")[1]/60);
-		var nEndDate = Number(d.getElementById("toTime").value.split(":")[0]) + Number(d.getElementById("toTime").value.split(":")[1]/60);
-		
+		//var nStartDate = Number(d.getElementById("fromTime").value.split(":")[0])+Number(d.getElementById("fromTime").value.split(":")[1]/60);
+		//var nEndDate = Number(d.getElementById("toTime").value.split(":")[0]) + Number(d.getElementById("toTime").value.split(":")[1]/60);
+		/*
 		if(nStartDate < nEndDate){
 			duration =  nEndDate - nStartDate;
 		}
 		else{
 			duration = (24-nStartDate) + nEndDate;
+		}*/
+		
+		var nHour = Number(document.getElementById("hour").value);
+		var nMinute = Number(document.getElementById("minute").value);
+		
+		if(nHour != undefined && nHour != ""){
+			nDuration = nHour + nMinute/60
 		}
-		
-		console.log("duration", duration);
+		else{
+			nDuration = 0 + nMinute/60
+		}
 	
+		console.log("Duration", nDuration);
 		
-		
-		fade(el,'background-color',oStartColor,oEndColor,duration*60*60*1000);
+		fade(el,'background-color',oStartColor,oEndColor,nDuration*60*60*1000);
 		$("#playButton").fadeOut(1000);
 		$("#settingsButton").fadeOut(1000);
 		
@@ -185,6 +200,7 @@
 	onShowTimer = function(){
 	
 		$("#playButton").fadeOut(1000);
+		$("#counter").fadeIn(100);
 		
 		var x = 5;
 		var intervalID = setInterval(function () {
@@ -224,8 +240,8 @@
 		var d = document;
 	
 		var oData ={
-			starttime: d.getElementById("fromTime").value,
-			endtime: d.getElementById("toTime").value,
+			starttime: d.getElementById("hour").value,
+			endtime: d.getElementById("minute").value,
 			duration: "",
 			fromcolor: d.getElementById("fromColor").value,	
 			tocolor: d.getElementById("toColor").value
@@ -248,7 +264,7 @@
 	};
 	
 	$(document).ready(function(){
-	  onSetTime();
+	 // onSetTime();
 	  console.log("test");
 	});
 	
