@@ -5,7 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -18,7 +19,7 @@
 	}
 	
 	.form{
-		width: 400px;
+		width: 300px;
 		background-color: #fff;
 		padding: 15px;
 		box-shadow: 2px 2px 5px #333;
@@ -28,6 +29,7 @@
 		position: absolute;
 		top: 50%;
 		left: 50%;
+		visibility: visible;
 	}
 	
 	.play-button i{
@@ -39,6 +41,26 @@
 		top: 50%;
 		left: 50%;
 		font-size: 5rem !important;
+	}
+	
+	.phoneStart{
+		width: 100%;
+		visibility: hidden;
+	}
+	
+	/* On screens that are 900px or less, set the background color to blue */
+	@media screen and (max-width: 992px) {
+	  .phoneStart{
+			width: 100%;
+			visibility: visible;
+		}
+		
+	  .play-button{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			visibility: hidden;
+		}
 	}
 
 </style>
@@ -83,16 +105,23 @@
 						</div>
 					</div>
 					<label>Színek</label>
-					<div class="form-group">
+					<div id="formGroup" class="form-group">
 					 
-					  <input type="color" id="fromColor" class="form-control" value="#ff0000">
-					  <input type="color" id="toColor" class="form-control" value="#0000ff">
+					  <input name="color" type="color" id="color0" class="form-control" value="#ff0000">
+					  <input name="color" type="color" id="color1" class="form-control" value="#0000ff">
 					</div>
 					
+					 <div class="btn-group">
+					  <button type="button" class="btn btn-primary" onclick="addNewColor()" ><i class="fas fa-plus"></i></button>
+					  <button type="button" class="btn btn-primary" onclick="removeNewColor()" ><i class="fas fa-minus"></i></button>
+
+					</div> 
 					
 				</form>
-				
-				<button type="button" class="btn btn-primary" onclick="onSendData()" >Mentés</button>
+				<br />
+				  <button type="button" class="btn btn-primary phoneStart" data-toggle="collapse" data-target="#demo" onclick="onShowTimer()" >
+					<i class="fa fa-play" aria-hidden="true"></i>
+				  </button>
 			</div>
 		</div>
 		
@@ -101,7 +130,7 @@
 	</div>
 
 
-			<h1 id="counter" class="counter">5</h1>
+		  <h1 id="counter" class="counter">5</h1>
 		  <button id="playButton" type="button" class="btn btn-primary play-button" data-toggle="collapse" data-target="#demo" onclick="onShowTimer()" >
 			<i class="fa fa-play" aria-hidden="true"></i>
 		  </button>
@@ -116,8 +145,10 @@
     lerp = function(a,b,u) {
         return (1-u) * a + u * b;
     };
+	
+	var colorList = 0;
     
-    fade = function(element, property, start, end, duration) {
+    fade = function(element, property, start, end, duration, iteration, laststep) {
       var interval = 10;
       var steps = duration/interval;
       var step_u = 1.0/steps;
@@ -137,8 +168,25 @@
 
 		//Show button if the transition is over
 		if(u >1.0){
-			$("#playButton").fadeIn(1000);
-			$("#settingsButton").fadeIn(1000);
+		
+			console.log("fade iteration", iteration);
+			console.log("last step", laststep);
+			console.log("colorlist",colorList);
+			
+			if(colorList != laststep){
+				colorList++;
+				onPressAction(colorList);
+			}
+			else{
+				$("#playButton").fadeIn(1000);
+				$("#settingsButton").fadeIn(1000);
+				onCloseFullScreen();
+				colorList = 0;
+			}
+		
+			
+			
+			//
 		}
 		
         el.style.setProperty(property, colorname);
@@ -152,31 +200,68 @@
     //startColor = {r:255, g:  0, b:  0};  // red
     //endColor   = {r:  0, g:128, b:128};  // dark turquoise
 	
-    
+    onOpenFullScreen = function(){
+		var elem = document.documentElement;
+		
+		 if (elem.requestFullscreen) {
+			elem.requestFullscreen();
+		 } else if (elem.webkitRequestFullscreen) { /* Safari */
+			elem.webkitRequestFullscreen();
+		 } else if (elem.msRequestFullscreen) { /* IE11 */
+			elem.msRequestFullscreen();
+		 }
+	}
 	
-	onPressAction = function(){
+	onCloseFullScreen = function(){
+	 if (document.exitFullscreen) {
+		document.exitFullscreen();
+	  } else if (document.webkitExitFullscreen) { /* Safari */
+		document.webkitExitFullscreen();
+	  } else if (document.msExitFullscreen) { /* IE11 */
+		document.msExitFullscreen();
+	  }
+	}
+	
+	addNewColor = function(){
+	  var oColor = document.createElement("input");
+	  
+	  oColor.setAttribute("class", "form-control");
+	  oColor.setAttribute("type", "color");
+	  oColor.setAttribute("value", "#ff0000");
+	  oColor.setAttribute("name", "color");
+	  oColor.setAttribute("id", "color"+Number(document.getElementsByName("color").length));
+	 
+	  document.getElementById("formGroup").appendChild(oColor); 
+	}
+	
+	removeNewColor = function(){
+		var nLastId = Number(document.getElementsByName("color").length)-1;
+		var oElement = document.getElementById("color"+nLastId);
+		
+		oElement.parentNode.removeChild(oElement);
+		
+	}
+	
+	onPressAction = function(fromColor,toColor){
 		var d = document;
-		var sStartColor = document.getElementById("fromColor").value;
-		var sEndColor = document.getElementById("toColor").value;
 		var nDuration;
+		
+		var oStartColor, oEndColor;
+		
+		console.log("fromColor",colorList);
+		
+		
+		
+
+		//itt van felülírva a két szín
+		var sStartColor = document.getElementById("color"+colorList).value;
+		var sEndColor = document.getElementById("color"+(colorList+1)).value;
 		
 		var aStartColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sStartColor);
 		var aEndColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sEndColor);
 		
-		var oStartColor = 	{r:parseInt(aStartColor[1], 16), g:parseInt(aStartColor[2], 16), b:parseInt(aStartColor[3], 16)}; 
-		var oEndColor = 	{r:parseInt(aEndColor[1], 16), g:parseInt(aEndColor[2], 16), b:parseInt(aEndColor[3], 16)};
-		
-		console.log(oStartColor);
-		
-		//var nStartDate = Number(d.getElementById("fromTime").value.split(":")[0])+Number(d.getElementById("fromTime").value.split(":")[1]/60);
-		//var nEndDate = Number(d.getElementById("toTime").value.split(":")[0]) + Number(d.getElementById("toTime").value.split(":")[1]/60);
-		/*
-		if(nStartDate < nEndDate){
-			duration =  nEndDate - nStartDate;
-		}
-		else{
-			duration = (24-nStartDate) + nEndDate;
-		}*/
+		oStartColor = 	{r:parseInt(aStartColor[1], 16), g:parseInt(aStartColor[2], 16), b:parseInt(aStartColor[3], 16)}; 
+		oEndColor = 	{r:parseInt(aEndColor[1], 16), g:parseInt(aEndColor[2], 16), b:parseInt(aEndColor[3], 16)};
 		
 		var nHour = Number(document.getElementById("hour").value);
 		var nMinute = Number(document.getElementById("minute").value);
@@ -188,17 +273,27 @@
 			nDuration = 0 + nMinute/60
 		}
 	
-		console.log("Duration", nDuration);
 		
-		fade(el,'background-color',oStartColor,oEndColor,nDuration*60*60*1000);
+		
+		var iterate = document.getElementsByName("color").length-1;
+		var lastStep = document.getElementsByName("color").length-2;
+		
+		var nDurationInMs = nDuration*60*60*1000;
+
+		console.log("Duration", lastStep);
+
+		fade(el,'background-color',oStartColor,oEndColor,nDurationInMs/iterate,iterate,lastStep);
+		
 		$("#playButton").fadeOut(1000);
 		$("#settingsButton").fadeOut(1000);
+		
+		
 		
 	};
 	
 	///this can be a timer
 	onShowTimer = function(){
-	
+		onOpenFullScreen();
 		$("#playButton").fadeOut(1000);
 		$("#counter").fadeIn(100);
 		
@@ -211,10 +306,11 @@
 			 console.log("test",document.getElementById("counter").textContent);
 
 		   if (--x === 0) {
+		   
 			   window.clearInterval(intervalID);
 				$("#counter").fadeOut(500);
 				
-					onInitFade()
+					onInitFade(1)
 				
 				
 		   }
@@ -243,8 +339,8 @@
 			starttime: d.getElementById("hour").value,
 			endtime: d.getElementById("minute").value,
 			duration: "",
-			fromcolor: d.getElementById("fromColor").value,	
-			tocolor: d.getElementById("toColor").value
+			fromcolor: d.getElementById("color1").value,	
+			tocolor: d.getElementById("color2").value
 		
 		}
 	
@@ -269,16 +365,29 @@
 	});
 	
 	
-	onInitFade = function(element){
-		  var sEndColor = document.getElementById("fromColor").value;
-		  var aEndColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sEndColor);
-		  var oEndColor = 	{r:parseInt(aEndColor[1], 16), g:parseInt(aEndColor[2], 16), b:parseInt(aEndColor[3], 16)};
-	      var property = "background-color";
-		  var start = {r:255,g:255,b:255};
+	onInitFade = function(nIterate){	  
+		  var sEndColor,
+		  aEndColor,
+		  oEndColor,
+	      property,
+		  oStartColor;
+		  var nIteration = nIterate;
 		  var interval = 10;
 		  var steps = 1000/interval;
 		  var step_u = 1.0/steps;
 		  var u = 0.0;
+		  
+		  
+			sEndColor = document.getElementById("color0").value;
+			aEndColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sEndColor);
+			oEndColor = 	{r:parseInt(aEndColor[1], 16), g:parseInt(aEndColor[2], 16), b:parseInt(aEndColor[3], 16)};
+			property = "background-color";
+			
+			
+			oStartColor = {r:255,g:255,b:255};
+		  
+		  
+		  
 		  var theInterval = setInterval(function(){
 		  
 			if (u >= 1.0){ 
@@ -286,9 +395,9 @@
 			}
 			
 			
-			var r = parseInt(lerp(start.r, oEndColor.r, u));
-			var g = parseInt(lerp(start.g, oEndColor.g, u));
-			var b = parseInt(lerp(start.b, oEndColor.b, u));
+			var r = parseInt(lerp(oStartColor.r, oEndColor.r, u));
+			var g = parseInt(lerp(oStartColor.g, oEndColor.g, u));
+			var b = parseInt(lerp(oStartColor.b, oEndColor.b, u));
 			
 			var colorname = 'rgb('+r+','+g+','+b+')';
 
@@ -301,12 +410,7 @@
 			u += step_u;
 		  }, interval);
 	}
-	
-    
-    // fade back after 2 secs
-    /*setTimeout(function(){
-      fade(el,'background-color',endColor,startColor,5000);
-    },2000);*/
+
 </script>
 </body>
 </html>
