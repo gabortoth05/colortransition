@@ -41,7 +41,16 @@
 		top: 50%;
 		left: 50%;
 		font-size: 5rem !important;
-		z-index: -1;
+		
+	
+	}
+	
+	.remaining-time{
+		position: absolute;
+		top: 50%;
+		left: 40%;
+		font-size: 3rem !important;
+		visibility: hidden;
 	}
 	
 	.phoneStart{
@@ -76,7 +85,7 @@
 		
 </div>
 
-<div class="container-fluid" id="box">
+<div class="container-fluid" id="box" ondblclick="onEscapeFullscreen">
 
 	<div class="col-sm-12" >
 	  
@@ -110,6 +119,7 @@
 					 
 					  <input name="color" type="color" id="color0" class="form-control" value="#ff0000">
 					  <input name="color" type="color" id="color1" class="form-control" value="#0000ff">
+						
 					</div>
 					
 					 <div class="btn-group">
@@ -135,12 +145,20 @@
 		  <button id="playButton" type="button" class="btn btn-primary play-button" data-toggle="collapse" data-target="#demo" onclick="onShowTimer()" >
 			<i class="fa fa-play" aria-hidden="true"></i>
 		  </button>
-
+		  <h1 id="remainingTime" class="remaining-time"><span id="remainTime">00:00:00</span><span id="totalTime"> / 00:00:00</span></h1>
 	
 </div>
 
 
 <script>
+
+	$(document).ready(function(){
+		document.getElementById("box").addEventListener("dblclick", onEscapeFullscreen);
+		document.getElementById("box").addEventListener("click", onShowTime);
+	});
+
+	
+
 // linear interpolation between two values a and b
     // u controls amount of a/b and is in range [0.0,1.0]
     lerp = function(a,b,u) {
@@ -148,18 +166,95 @@
     };
 	
 	var colorList = 0;
+	
+	var oStatus = true;
+	
+	var nDuration;
+	var nCurrentTime = 0;
+	
+	onDrawFullTime= function(){
+		var nFullDuration = nDuration;
+		
+		var endHour, endMinutes, endSeconds;
+		var currHour, currMinutes, currSeconds;
+		
+		if(nFullDuration > 0 ){
+			
+			endHour = (nFullDuration/(3600*1000));
+			endMinutes;
+			endSeconds; 
+			
+			if(endHour > 0){
+				
+				endMinutes = (Number(endHour)-Math.trunc(endHour))*60;
+				endHour = Math.trunc(Number((nFullDuration/(3600*1000))));
+				endSeconds = (Number(endMinutes)-Math.trunc(endMinutes))*60;
+				
+				endMinutes = Math.trunc(endMinutes);
+				endSeconds = Math.trunc(endSeconds);
+			
+				
+				
+			}
+			else{
+			
+			}
+			
+			console.log(endHour.toString().length);
+			console.log(endMinutes.toString().length);
+			console.log(endSeconds.toString().length);
+			
+			endHour.toString().length 	 === 1 ? endHour 	= "0"+endHour 		: endHour;
+			endMinutes.toString().length === 1 ? endMinutes	= "0"+endMinutes 	: endMinutes;
+			endSeconds.toString().length === 1 ? endSeconds	= "0"+endSeconds 	: endSeconds;
+			
+			
+			document.getElementById("totalTime").innerText = " / "+endHour+":"+endMinutes+":"+endSeconds;
+		}
+		
+		console.log("hours",endHour);
+		console.log("minutes",endMinutes);
+		console.log("seconds",endSeconds);
+	};
+	
+	reDrawRemainTime = function(nCurrTime){
+	
+		var milliseconds = parseInt((nCurrTime % 100)),
+		seconds = Math.floor((nCurrTime / 100) % 60),
+		minutes = Math.floor((nCurrTime / (100 * 60)) % 60),
+		hours = Math.floor((nCurrTime / (100 * 60 * 60)) % 24);
+
+		  hours = (hours < 10) ? "0" + hours : hours;
+		  minutes = (minutes < 10) ? "0" + minutes : minutes;
+		  seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+			
+		document.getElementById("remainTime").innerText = ""+hours+":"+minutes+":"+seconds;
+		
+	
+	};
     
     fade = function(element, property, start, end, duration, iteration, laststep) {
       var interval = 10;
       var steps = duration/interval;
       var step_u = 1.0/steps;
       var u = 0.0;
-      var theInterval = setInterval(function(){
 	  
-        if (u >= 1.0){ 
-			clearInterval(theInterval) 
-		}
+	  nDuration = duration;
+	  
+      var theInterval = setInterval(function(){
+
 		
+		nCurrentTime++
+		
+		reDrawRemainTime(Math.trunc(nCurrentTime));
+		
+		
+		if(oStatus === false){
+		
+			colorList = laststep;
+			u = 1.0;
+		}
 		
         var r = parseInt(lerp(start.r, end.r, u));
         var g = parseInt(lerp(start.g, end.g, u));
@@ -168,11 +263,14 @@
         var colorname = 'rgb('+r+','+g+','+b+')';
 
 		//Show button if the transition is over
-		if(u >1.0){
-		
+		 if (u >= 1.0){ 
+			
+		}
+		if(u >=1.0){
+			clearInterval(theInterval) 
 			console.log("fade iteration", iteration);
 			console.log("last step", laststep);
-			console.log("colorlist",colorList);
+			
 			
 			if(colorList != laststep){
 				colorList++;
@@ -183,6 +281,10 @@
 				$("#settingsButton").fadeIn(1000);
 				onCloseFullScreen();
 				colorList = 0;
+				nCurrentTime = 0;
+				oStatus = true;
+				nDuration = 0;
+				document.getElementById("remainTime").innerText = "00:00:00";
 			}
 		
 			
@@ -298,6 +400,10 @@
 		$("#playButton").fadeOut(1000);
 		$("#counter").fadeIn(100);
 		
+		console.log(document.getElementById("demo"));
+		
+		onCheckCollapsed();
+		
 		var x = 5;
 		var intervalID = setInterval(function () {
 
@@ -405,11 +511,48 @@
 			//Show button if the transition is over
 			if(u >1.0){
 				onPressAction();
+				
 			}
 			
 			el.style.setProperty(property, colorname);
 			u += step_u;
 		  }, interval);
+	};
+	
+	onEscapeFullscreen = function(){
+		
+		oStatus = false;
+		
+		if(document.fullscreen){
+			onCloseFullScreen();
+		}
+		
+	};
+	
+	onShowTime = function(){
+		console.log("onShowTime");
+		
+		onDrawFullTime();	
+		
+		console.log(nDuration);
+		
+		if(nDuration > 0){
+		
+		document.getElementById("remainingTime").style.visibility = "visible";
+		$("#remainingTime").fadeIn();
+		
+		setTimeout(function(){ $("#remainingTime").fadeOut(); }, 3000);
+		
+		}
+		
+		
+		
+	};
+	
+	onCheckCollapsed = function(){
+		if($('#settingsButton').attr("aria-expanded")){
+			$('#settingsButton').click()
+		}
 	}
 
 </script>
