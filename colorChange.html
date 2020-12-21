@@ -71,6 +71,15 @@
 			left: 50%;
 			visibility: hidden;
 		}
+		
+	  .counter{
+		position: absolute;
+		top: 50%;
+		left: 40%;
+		font-size: 5rem !important;
+		
+	
+		}
 	}
 
 </style>
@@ -155,6 +164,8 @@
 	$(document).ready(function(){
 		document.getElementById("box").addEventListener("dblclick", onEscapeFullscreen);
 		document.getElementById("box").addEventListener("click", onShowTime);
+		
+		$("#counter").fadeOut();
 	});
 
 	
