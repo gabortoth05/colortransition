@@ -5,11 +5,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
 </head>
 
 <style>
@@ -119,9 +119,49 @@ background: rgb(255,255,255);
 background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 24%, rgba(57,214,133,1) 68%, rgba(103,255,99,1) 87%, rgba(103,255,99,1) 100%);
 }
 
-</style>
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+
+.slidecontainer {
+  width: 300px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 300px;
+  height: 10px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.image-holder{
+	width: 200px;
+	height: 200px;
+}
+
+</style>
 
 <body >
 
@@ -171,8 +211,22 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 					  
 						<div id="formGroup" class="form-group">
 					 
-							<input name="color" type="color" id="color0" class="form-control" value="#ff0000">
-							<input name="color" type="color" id="color1" class="form-control" value="#0000ff">
+							
+							<div id="control0" class="input-group mb-3">
+							  <input name="color" type="color" id="color0" class="form-control" value="#ff0000">
+							  <div class="input-group-append">
+								<button class="btn btn-success editColor" id="edit0" onclick="onEditColor()"></button>
+							  </div>
+							</div>
+							
+							<div id="control1" class="input-group mb-3">
+							  <input name="color" type="color" id="color1" class="form-control" value="#0000ff">
+							  <div class="input-group-append">
+								<button class="btn btn-success editColor" id="edit1" onclick="onEditColor()"></button>
+							  </div>
+							</div>
+							
+							
 						
 						</div>
 						
@@ -180,7 +234,7 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 						<div class="btn-group">
 						  <button type="button" class="btn btn-primary" onclick="addNewColor()" ><i class="fas fa-plus"></i></button>
 						  <button type="button" class="btn btn-primary" onclick="removeNewColor()" ><i class="fas fa-minus"></i></button>
-
+						  <button type="button" class="btn btn-primary" onclick="removeNewColor()" ><i class="fas fa-save"></i></button>
 						</div> 
 					  
 					  </div>
@@ -235,6 +289,46 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 </div>
 
 
+
+
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title"></h4>
+          <button type="button" class="close" data-dismiss="modal">×</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+			<div id="colorPicker" class="image-holder"></div>
+			<div class="slidecontainer">
+				  <input type="range" min="0" max="255" value="50" class="slider" id="rRange" oninput="showVal(this.value)" onchange="showVal(this.value)">
+				  <p>Value: <span id="rValue"></span></p>
+				</div>
+			<div class="slidecontainer">
+				<input type="range" min="0" max="255" value="50" class="slider" id="gRange" oninput="showVal(this.value)" onchange="showVal(this.value)">
+				<p>Value: <span id="gValue"></span></p>
+			</div>
+			<div class="slidecontainer">
+				<input type="range" min="0" max="255" value="50" class="slider" id="bRange" oninput="showVal(this.value)" onchange="showVal(this.value)">
+				<p>Value: <span id="bValue"></span></p>
+			</div>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+			<button type="button" class="btn btn-success" data-dismiss="modal" onclick="addModelColor()">Add</button>
+			<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
 <script>
 
 	$(document).ready(function(){
@@ -242,6 +336,7 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 		document.getElementById("box").addEventListener("click", onShowTime);
 		
 		$("#counter").fadeOut();
+
 	});
 
 	
@@ -437,11 +532,68 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 			  
 			  console.log(actualColor);
 			  
+			  //oColor.setAttribute("value", actualColor);
+			  //oColor.setAttribute("name", "color");
+			  //oColor.setAttribute("id", "color"+Number(document.getElementsByName("color").length));
+			 
+			  //document.getElementById("formGroup").appendChild(oColor);
+			  
+			  /*Inject new part*/
+			  var oColor = document.createElement("input");
+			  var oInputGroup = document.createElement("div");
+			  var oInputGroupAppend =document.createElement("div");
+			  var oButton = document.createElement("button");
+			  
+			  oColor.setAttribute("class", "form-control");
+			  oColor.setAttribute("type", "color");
 			  oColor.setAttribute("value", actualColor);
 			  oColor.setAttribute("name", "color");
 			  oColor.setAttribute("id", "color"+Number(document.getElementsByName("color").length));
 			 
-			  document.getElementById("formGroup").appendChild(oColor);
+			 //add classes
+			 oInputGroup.setAttribute("class", "input-group mb-3");
+			 oInputGroup.setAttribute("id", "control"+Number(document.getElementsByName("color").length));
+			 
+			 oInputGroupAppend.setAttribute("class", "input-group-append");
+			 oButton.setAttribute("class", "btn btn-success editColor");
+			 oButton.setAttribute("id", "edit"+Number(document.getElementsByName("color").length));
+			 //oButton.setAttribute("onclick", ""); 
+			 
+			 oButton.onclick = function(event) {
+				  console.log(event.target.id);
+				  
+				  var id = event.target.id;
+				  
+				  var color = document.getElementById("color"+id.split("edit")[1]).value;
+				  
+				  sColorID = document.getElementById("color"+id.split("edit")[1]);
+				  
+				  console.log(color);
+				  
+				  $("#myModal").modal('show');
+				  
+				  var oColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+				  
+				  var r = parseInt(oColor[1], 16);
+				  var g = parseInt(oColor[2], 16);
+				  var b = parseInt(oColor[3], 16); 
+				  
+				  $("#colorPicker").css('background-color', color);
+				  
+				  document.getElementById("rValue").innerHTML = r;
+				  document.getElementById("gValue").innerHTML = g;
+				  document.getElementById("bValue").innerHTML = b;
+				  
+				  document.getElementById("rRange").value = r;
+				  document.getElementById("gRange").value = g;
+				  document.getElementById("bRange").value = b;
+				  
+				};
+			 
+			 //Put together the html elements
+			  document.getElementById("formGroup").appendChild(oColor); 
+			  document.getElementById("formGroup").appendChild(oInputGroup).appendChild(oColor);
+			  document.getElementById("formGroup").appendChild(oInputGroup).appendChild(oInputGroupAppend).appendChild(oButton);
 		  
 		  }
 		
@@ -449,17 +601,72 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 		
 		}
 		else{
+
+			/*
+			<div class="input-group mb-3">
+							  <input name="color" type="color" id="color0" class="form-control" value="#ff0000">
+							  <div class="input-group-append">
+								<button class="btn btn-success" type="submit">Go</button>
+							  </div>
+							</div>
+			
+			*/
 		
 		  var oColor = document.createElement("input");
-
+		  var oInputGroup = document.createElement("div");
+		  var oInputGroupAppend =document.createElement("div");
+		  var oButton = document.createElement("button");
+		  
 		  oColor.setAttribute("class", "form-control");
 		  oColor.setAttribute("type", "color");
 		  oColor.setAttribute("value", "#ff0000");
 		  oColor.setAttribute("name", "color");
 		  oColor.setAttribute("id", "color"+Number(document.getElementsByName("color").length));
 		 
+		 //add classes
+		 oInputGroup.setAttribute("class", "input-group mb-3");
+		 oInputGroup.setAttribute("id", "control"+Number(document.getElementsByName("color").length));
+		 
+		 oInputGroupAppend.setAttribute("class", "input-group-append");
+		 oButton.setAttribute("class", "btn btn-success editColor");
+		 oButton.setAttribute("id", "edit"+Number(document.getElementsByName("color").length));
+		 //oButton.setAttribute("onclick", ""); 
+		 
+		 oButton.onclick = function(event) {
+			  console.log(event.target.id);
+			  
+			  var id = event.target.id;
+			  
+			  var color = document.getElementById("color"+id.split("edit")[1]).value;
+			  
+			  sColorID = document.getElementById("color"+id.split("edit")[1]);
+			  
+			  console.log(color);
+			  
+			  $("#myModal").modal('show');
+			  
+			  var oColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+			  
+			  var r = parseInt(oColor[1], 16);
+			  var g = parseInt(oColor[2], 16);
+			  var b = parseInt(oColor[3], 16); 
+			  
+			  $("#colorPicker").css('background-color', color);
+			  
+			  document.getElementById("rValue").innerHTML = r;
+			  document.getElementById("gValue").innerHTML = g;
+			  document.getElementById("bValue").innerHTML = b;
+			  
+			  document.getElementById("rRange").value = r;
+			  document.getElementById("gRange").value = g;
+			  document.getElementById("bRange").value = b;
+			  
+			};
+		 
+		 //Put together the html elements
 		  document.getElementById("formGroup").appendChild(oColor); 
-		
+		  document.getElementById("formGroup").appendChild(oInputGroup).appendChild(oColor);
+		  document.getElementById("formGroup").appendChild(oInputGroup).appendChild(oInputGroupAppend).appendChild(oButton);
 		}
 	
 
@@ -478,7 +685,7 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 				console.log("length",nLength);
 				console.log("id",i);
 				
-				var oElement = document.getElementById("color"+i);
+				var oElement = document.getElementById("control"+i);
 			
 				oElement.parentNode.removeChild(oElement);
 				
@@ -488,7 +695,7 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 		}
 		else{
 			var nLastId = Number(document.getElementsByName("color").length)-1;
-			var oElement = document.getElementById("color"+nLastId);
+			var oElement = document.getElementById("control"+nLastId);
 			
 			oElement.parentNode.removeChild(oElement);
 		}
@@ -706,6 +913,10 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 			$('#settingsButton').click()
 		}
 	};
+	
+	onEditColor = function(e){
+		console.log(e);
+	};
 
 	
 	$('.gradientId').on('click', function (e) {
@@ -734,7 +945,105 @@ background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 2
 	  
 	  }
 	  console.log(oColors);
-	})
+	});
+	
+	
+	$('.editColor').on('click', function(event) {
+	  console.log(event.target.id);
+	  
+	  var id = event.target.id;
+	  
+	  var color = document.getElementById("color"+id.split("edit")[1]).value;
+	  
+	  sColorID = document.getElementById("color"+id.split("edit")[1]);
+	  
+	  
+	  
+	  $("#myModal").modal('show');
+	  
+	  var oColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+	  
+	  var r = parseInt(oColor[1], 16);
+	  var g = parseInt(oColor[2], 16);
+	  var b = parseInt(oColor[3], 16); 
+	  
+	  $("#colorPicker").css('background-color', color);
+	  
+	  console.log(r);
+	  console.log(g);
+	  console.log(b);
+	  
+	  document.getElementById("rValue").innerHTML = r;
+	  document.getElementById("gValue").innerHTML = g;
+	  document.getElementById("bValue").innerHTML = b;
+	  
+	  document.getElementById("rRange").value = r;
+	  document.getElementById("gRange").value = g;
+	  document.getElementById("bRange").value = b;
+	  
+	});
+	
+	var sColorID;
+	var rSlider = document.getElementById("rRange");
+	var gSlider = document.getElementById("gRange");
+	var bSlider =document.getElementById("bRange");
+	
+	var rOutput = document.getElementById("rValue");
+	var gOutput = document.getElementById("gValue");
+	var bOutput = document.getElementById("bValue");
+	
+		rOutput.value = rSlider.value;
+		gOutput.value = gSlider.value;
+		bOutput.innerHTML = bSlider.value;
+
+	rSlider.oninput = function() {
+		rOutput.innerHTML = this.value;
+	  onChangeColor(this.value);
+	}
+
+	gSlider.oninput = function(){
+		gOutput.innerHTML = this.value;
+		onChangeColor(this.value);
+	}
+
+	bSlider.oninput = function(){
+		bOutput.innerHTML = this.value;
+		onChangeColor(this.value);
+	}
+
+	showVal = function(value){
+		//.log(value);
+	}
+
+	onChangeColor = function(color){
+		
+		var r = document.getElementById("rRange").value;
+		var g = document.getElementById("gRange").value;
+		var b = document.getElementById("bRange").value;
+
+		$("#colorPicker").css('background-color', 'rgb('+r+','+g+','+b+')');
+	}
+	
+	addModelColor = function(){
+	
+		var r = Number(document.getElementById("rRange").value);
+		var g = Number(document.getElementById("gRange").value);
+		var b = Number(document.getElementById("bRange").value);
+		
+		var actualColor = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+		
+		
+		
+		document.getElementById(sColorID.id).value = actualColor;
+		
+		console.log(actualColor);
+		console.log(document.getElementById(sColorID.id).value);
+		
+
+	
+	}
+
+
 
 </script>
 </body>
